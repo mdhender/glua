@@ -217,9 +217,9 @@ func (p parser) accept_functiondef() (parser, *FUNCTIONDEF) {
 	return p, functiondef
 }
 
-type FUNCBODY struct{
+type FUNCBODY struct {
 	parlist *PARLIST
-	block *BLOCK
+	block   *BLOCK
 }
 type PARLIST struct {
 	namelist *NAMELIST
@@ -227,6 +227,7 @@ type PARLIST struct {
 type NAMELIST struct {
 	name [][]byte
 }
+
 //funcbody ::= '(' [parlist] ')' block 'end'
 func (p parser) accept_funcbody() (parser, *FUNCBODY) {
 	if eof(p) {
@@ -345,32 +346,44 @@ func (p parser) accept_fieldsep() (parser, *node) {
 	return p, nil
 }
 
-func (p parser) accept_functioncall() (parser, *node) {
-	panic("!implemented")
+type PREFIXEXP struct {
+	variable     *VARIABLE
+	functioncall *FUNCTIONCALL
+	exp          *EXP
 }
 
 // prefixexp ::= var | functioncall | '(' exp ')'
-func (p parser) accept_prefixexp() (parser, *node) {
+func (p parser) accept_prefixexp() (parser, *PREFIXEXP) {
 	if eof(p) {
 		return p, nil
 	}
-	if pres, node := p.accept_var(); node != nil {
-		return pres, node
+	pSaved, prefixexp := p, &PREFIXEXP{}
+	if p, prefixexp.variable = p.accept_var(); prefixexp.variable != nil {
+		return p, prefixexp
 	}
-	if pres, node := p.accept_functioncall(); node != nil {
-		return pres, node
+	if p, prefixexp.functioncall = p.accept_functioncall(); prefixexp.functioncall != nil {
+		return p, prefixexp
 	}
-	if p.buf[0] == '(' {
-		if tmp := skipch(p); !eof(tmp) {
-			if pres, node := tmp.accept_exp(); node != nil {
-				return pres, node
+	var oparen, cparen []byte
+	if p, oparen = p.accept_Literal('('); oparen != nil {
+		if p, prefixexp.exp = p.accept_exp(); prefixexp.exp != nil {
+			if p, cparen = p.accept_Literal(')'); cparen != nil {
+				return p, prefixexp
 			}
 		}
 	}
-	return p, nil
+	return pSaved, nil
 }
 
-func (p parser) accept_var() (parser, *node) {
+type VARIABLE struct{}
+
+func (p parser) accept_var() (parser, *VARIABLE) {
+	panic("!implemented")
+}
+
+type FUNCTIONCALL struct{}
+
+func (p parser) accept_functioncall() (parser, *FUNCTIONCALL) {
 	panic("!implemented")
 }
 
