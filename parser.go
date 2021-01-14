@@ -54,13 +54,93 @@ type BLOCK struct {
 //		 function funcname funcbody |
 //		 local function Name funcbody |
 //		 local attnamelist [‘=’ explist]
-type STAT struct{}
+type STAT struct {
+	rule1  *STAT_RULE1
+	rule2  *STAT_RULE2
+	rule3  *STAT_RULE3
+	rule4  *STAT_RULE4
+	rule5  *STAT_RULE5
+	rule6  *STAT_RULE6
+	rule7  *STAT_RULE7
+	rule8  *STAT_RULE8
+	rule9  *STAT_RULE9
+	rule10 *STAT_RULE10
+	rule11 *STAT_RULE11
+	rule12 *STAT_RULE12
+	rule13 *STAT_RULE13
+	rule14 *STAT_RULE14
+	rule15 *STAT_RULE15
+}
+type STAT_RULE1 struct{}
+type STAT_RULE2 struct {
+	varlist *VARLIST
+	explist *EXPLIST
+}
+type STAT_RULE3 struct {
+	functioncall *FUNCTIONCALL
+}
+type STAT_RULE4 struct {
+	label *LABEL
+}
+type STAT_RULE5 struct{}
+type STAT_RULE6 struct {
+	name *NAME
+}
+type STAT_RULE7 struct {
+	block *BLOCK
+}
+type STAT_RULE8 struct {
+	exp   *EXP
+	block *BLOCK
+}
+type STAT_RULE9 struct {
+	block *BLOCK
+	exp   *EXP
+}
+type STAT_RULE10 struct {
+	expblock  []*EXPBLOCK
+	elseBlock *BLOCK
+}
+type EXPBLOCK struct {
+	exp   *EXP
+	block *BLOCK
+}
+type STAT_RULE11 struct {
+	name             *NAME
+	exp1, exp2, exp3 *EXP
+	block            *BLOCK
+}
+type STAT_RULE12 struct {
+	namelist *NAMELIST
+	explist  *EXPLIST
+	block    *BLOCK
+}
+type STAT_RULE13 struct {
+	funcname *FUNCNAME
+	funcbody *FUNCBODY
+}
+type STAT_RULE14 struct {
+	name     *NAME
+	funcbody *FUNCBODY
+}
+type STAT_RULE15 struct {
+	attnamelist *ATTNAMELIST
+	explist     *EXPLIST
+}
 
 //	attnamelist ::=  Name attrib {‘,’ Name attrib}
-type ATTNAMELIST struct{}
+type ATTNAMELIST struct {
+	attnamelist []*NAMEATTRIB
+}
+type NAMEATTRIB struct {
+	name   *NAME
+	attrib *ATTRIB
+}
 
 //	attrib ::= [‘<’ Name ‘>’]
-type ATTRIB struct{}
+type ATTRIB struct {
+	name *NAME
+}
 
 //	retstat ::= return [explist] [‘;’]
 type RETSTAT struct {

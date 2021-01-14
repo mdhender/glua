@@ -56,38 +56,580 @@ func (p parser) accept_chunk() (parser, *CHUNK, error) {
 
 // block ::= {stat} [retstat]
 func (p parser) accept_block() (parser, *BLOCK, error) {
-	block := &BLOCK{}
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, block := p, &BLOCK{}
 
-	var stat *STAT
-	for p, stat = p.accept_stat(); stat != nil; p, stat = p.accept_stat() {
+	// accept {stat}
+	for {
+		pp, stat, err := p.accept_stat()
+		if err != nil {
+			return pSaved, nil, err
+		} else if stat == nil {
+			break
+		}
 		block.stat = append(block.stat, stat)
+		p = pp
 	}
 
-	p, block.retstat = p.accept_retstat()
+	if pp, retstat, err := p.accept_retstat(); err != nil {
+		return pSaved, nil, err
+	} else if retstat != nil {
+		block.retstat = retstat
+		p = pp
+	}
 
 	return p, block, nil
 }
 
 // stat ::= ';'
-//      | varlist '=' explist
-//      | functioncall
-//      | label
-//      | 'break'
-//      | 'goto' Name
-//      | 'do' block 'end'
-//      | 'while' exp 'do' block 'end'
-//      | 'repeat' block 'until' exp
-//      | 'if' exp 'then' block {'elseif' exp 'then' block} ['else' block] 'end'
-//      | 'for' Name '=' exp ',' exp [',' exp] 'do' block 'end'
-//      | 'for' namelist 'in' explist 'do' block 'end'
-//      | 'function' funcname funcbody
-//      | 'local' 'function' Name funcbody
-//      | 'local' attnamelist ['=' explist]
-func (p parser) accept_stat() (parser, *STAT) {
+//        | varlist '=' explist
+//        | functioncall
+//        | label
+//        | 'break'
+//        | 'goto' Name
+//        | 'do' block 'end'
+//        | 'while' exp 'do' block 'end'
+//        | 'repeat' block 'until' exp
+//        | 'if' exp 'then' block {'elseif' exp 'then' block} ['else' block] 'end'
+//        | 'for' Name '=' exp ',' exp [',' exp] 'do' block 'end'
+//        | 'for' namelist 'in' explist 'do' block 'end'
+//        | 'function' funcname funcbody
+//        | 'local' 'function' Name funcbody
+//        | 'local' attnamelist ['=' explist]
+func (p parser) accept_stat() (parser, *STAT, error) {
 	if eof(p) {
-		return p, nil
+		return p, nil, nil
 	}
-	panic("!implemented")
+	pSaved := p
+
+	// accept stat.rule1
+	if pp, rule, err := p.accept_stat_rule1(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule1: rule}, nil
+	}
+
+	// accept stat.rule2
+	if pp, rule, err := p.accept_stat_rule2(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule2: rule}, nil
+	}
+
+	// accept stat.rule3
+	if pp, rule, err := p.accept_stat_rule3(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule3: rule}, nil
+	}
+
+	// accept stat.rule4
+	if pp, rule, err := p.accept_stat_rule4(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule4: rule}, nil
+	}
+
+	// accept stat.rule5
+	if pp, rule, err := p.accept_stat_rule5(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule5: rule}, nil
+	}
+
+	// accept stat.rule6
+	if pp, rule, err := p.accept_stat_rule6(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule6: rule}, nil
+	}
+
+	// accept stat.rule7
+	if pp, rule, err := p.accept_stat_rule7(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule7: rule}, nil
+	}
+
+	// accept stat.rule8
+	if pp, rule, err := p.accept_stat_rule8(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule8: rule}, nil
+	}
+
+	// accept stat.rule9
+	if pp, rule, err := p.accept_stat_rule9(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule9: rule}, nil
+	}
+
+	// accept stat.rule10
+	if pp, rule, err := p.accept_stat_rule10(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule10: rule}, nil
+	}
+
+	// accept stat.rule11
+	if pp, rule, err := p.accept_stat_rule11(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule11: rule}, nil
+	}
+
+	// accept stat.rule12
+	if pp, rule, err := p.accept_stat_rule12(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule12: rule}, nil
+	}
+
+	// accept stat.rule13
+	if pp, rule, err := p.accept_stat_rule13(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule13: rule}, nil
+	}
+
+	// accept stat.rule13
+	if pp, rule, err := p.accept_stat_rule13(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule13: rule}, nil
+	}
+
+	// accept stat.rule14
+	if pp, rule, err := p.accept_stat_rule14(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule14: rule}, nil
+	}
+
+	// accept stat.rule15
+	if pp, rule, err := p.accept_stat_rule15(); err != nil {
+		return pSaved, nil, err
+	} else if rule != nil {
+		return pp, &STAT{rule15: rule}, nil
+	}
+
+	return pSaved, nil, nil
+}
+
+// stat.rule1 ::= ';'
+func (p parser) accept_stat_rule1() (parser, *STAT_RULE1, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved := p
+
+	// accept ';'
+	var semiColon []byte
+	if p, semiColon = p.accept_Literal(';'); semiColon == nil {
+		return pSaved, nil, nil
+	}
+
+	return pSaved, &STAT_RULE1{}, nil
+}
+
+// stat.rule2 ::= varlist '=' explist
+func (p parser) accept_stat_rule2() (parser, *STAT_RULE2, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, rule := p, &STAT_RULE2{}
+	var err error
+
+	// accept varlist
+	if p, rule.varlist, err = p.accept_varlist(); err != nil {
+		return pSaved, nil, err
+	} else if rule.varlist == nil {
+		return pSaved, nil, nil
+	}
+	// expect '='
+	var equals []byte
+	if p, equals = p.accept_Literal('='); equals == nil {
+		return pSaved, nil, fmt.Errorf("expected '='")
+	}
+	// accept explist
+	if p, rule.explist, err = p.accept_explist(); err != nil {
+		return pSaved, nil, err
+	} else if rule.explist == nil {
+		return pSaved, nil, fmt.Errorf("expected explist")
+	}
+
+	return p, rule, nil
+}
+
+// stat.rule3 ::= functioncall
+func (p parser) accept_stat_rule3() (parser, *STAT_RULE3, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, rule := p, &STAT_RULE3{}
+	var err error
+
+	// accept functioncall
+	if p, rule.functioncall, err = p.accept_functioncall(); err != nil {
+		return pSaved, nil, err
+	} else if rule.functioncall == nil {
+		return pSaved, nil, nil
+	}
+
+	return p, rule, nil
+}
+
+// stat.rule4 ::= label
+func (p parser) accept_stat_rule4() (parser, *STAT_RULE4, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, rule := p, &STAT_RULE4{}
+	var err error
+
+	// accept label
+	if p, rule.label, err = p.accept_label(); err != nil {
+		return pSaved, nil, err
+	} else if rule.label == nil {
+		return pSaved, nil, nil
+	}
+
+	return p, rule, nil
+}
+
+// stat.rule5 ::= 'break'
+func (p parser) accept_stat_rule5() (parser, *STAT_RULE5, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved := p
+
+	// accept 'break'
+	var kwBreak *KEYWORD
+	if p, kwBreak = p.accept_Keyword('b', 'r', 'e', 'a', 'k'); kwBreak == nil {
+		return pSaved, nil, nil
+	}
+
+	return p, &STAT_RULE5{}, nil
+}
+
+// stat.rule6 ::= 'goto' Name
+func (p parser) accept_stat_rule6() (parser, *STAT_RULE6, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, rule := p, &STAT_RULE6{}
+	var err error
+
+	// accept 'goto'
+	var kwGoto *KEYWORD
+	if p, kwGoto = p.accept_Keyword('g', 'o', 't', 'o'); kwGoto == nil {
+		return pSaved, nil, nil
+	}
+	// expect Name
+	if p, rule.name, err = p.accept_Name(); err != nil {
+		return pSaved, nil, err
+	} else if rule.name == nil {
+		return pSaved, nil, fmt.Errorf("expected name")
+	}
+
+	return p, rule, nil
+}
+
+// stat.rule7 ::= 'do' block 'end'
+func (p parser) accept_stat_rule7() (parser, *STAT_RULE7, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, rule := p, &STAT_RULE7{}
+	var err error
+
+	// accept 'do'
+	var kwDo *KEYWORD
+	if p, kwDo = p.accept_Keyword('d', 'o'); kwDo == nil {
+		return pSaved, nil, nil
+	}
+	// expect block
+	if p, rule.block, err = p.accept_block(); err != nil {
+		return pSaved, nil, err
+	} else if rule.block == nil {
+		return pSaved, nil, fmt.Errorf("expected block")
+	}
+	// expect 'end'
+	var kwEnd *KEYWORD
+	if p, kwEnd = p.accept_Keyword('e', 'n', 'd'); kwEnd == nil {
+		return pSaved, nil, nil
+	}
+
+	return p, rule, nil
+}
+
+// stat.rule8 ::= 'while' exp 'do' block 'end'
+func (p parser) accept_stat_rule8() (parser, *STAT_RULE8, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, rule := p, &STAT_RULE8{}
+	var err error
+
+	// accept 'while'
+	var kwWhile *KEYWORD
+	if p, kwWhile = p.accept_Keyword('w', 'h', 'i', 'l', 'e'); kwWhile == nil {
+		return pSaved, nil, nil
+	}
+	// expect exp
+	if p, rule.exp, err = p.accept_exp(); err != nil {
+		return pSaved, nil, err
+	} else if rule.exp == nil {
+		return pSaved, nil, fmt.Errorf("expected exp")
+	}
+	// expect 'do'
+	var kwDo *KEYWORD
+	if p, kwDo = p.accept_Keyword('d', 'o'); kwDo == nil {
+		return pSaved, nil, fmt.Errorf("expected 'do'")
+	}
+	// expect block
+	if p, rule.block, err = p.accept_block(); err != nil {
+		return pSaved, nil, err
+	} else if rule.block == nil {
+		return pSaved, nil, fmt.Errorf("expected block")
+	}
+	// expect 'end'
+	var kwEnd *KEYWORD
+	if p, kwEnd = p.accept_Keyword('e', 'n', 'd'); kwEnd == nil {
+		return pSaved, nil, nil
+	}
+
+	return p, rule, nil
+}
+
+// stat.rule9 ::= 'repeat' block 'until' exp
+func (p parser) accept_stat_rule9() (parser, *STAT_RULE9, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, rule := p, &STAT_RULE9{}
+	var err error
+
+	// accept 'repeat'
+	var kwRepeat *KEYWORD
+	if p, kwRepeat = p.accept_Keyword('r', 'e', 'p', 'e', 'a', 't'); kwRepeat == nil {
+		return pSaved, nil, nil
+	}
+	// expect block
+	if p, rule.block, err = p.accept_block(); err != nil {
+		return pSaved, nil, err
+	} else if rule.block == nil {
+		return pSaved, nil, fmt.Errorf("expected block")
+	}
+	// expect 'until'
+	var kwUntil *KEYWORD
+	if p, kwUntil = p.accept_Keyword('u', 'n', 't', 'i', 'l'); kwUntil == nil {
+		return pSaved, nil, fmt.Errorf("expected 'until'")
+	}
+	// expect exp
+	if p, rule.exp, err = p.accept_exp(); err != nil {
+		return pSaved, nil, err
+	} else if rule.exp == nil {
+		return pSaved, nil, fmt.Errorf("expected exp")
+	}
+
+	return p, rule, nil
+}
+
+// stat.rule10 ::= 'if' exp 'then' block {'elseif' exp 'then' block} ['else' block] 'end'
+func (p parser) accept_stat_rule10() (parser, *STAT_RULE10, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, rule := p, &STAT_RULE10{}
+	var err error
+
+	// accept 'if'
+	var kwIf *KEYWORD
+	if p, kwIf = p.accept_Keyword('i', 'f'); kwIf == nil {
+		return pSaved, nil, nil
+	}
+	// expect exp
+	var exp *EXP
+	if p, exp, err = p.accept_exp(); err != nil {
+		return pSaved, nil, err
+	} else if exp == nil {
+		return pSaved, nil, fmt.Errorf("expected exp")
+	}
+	// expect 'then'
+	var kwThen *KEYWORD
+	if p, kwThen = p.accept_Keyword('t', 'h', 'e', 'n'); kwThen == nil {
+		return pSaved, nil, fmt.Errorf("expected 'then'")
+	}
+	// expect block
+	var block *BLOCK
+	if p, block, err = p.accept_block(); err != nil {
+		return pSaved, nil, err
+	} else if block == nil {
+		return pSaved, nil, fmt.Errorf("expected block")
+	}
+	rule.expblock = append(rule.expblock, &EXPBLOCK{exp: exp, block: block})
+	// accept {'elseif' exp 'then' block}
+	for {
+		// accept 'elseif' exp 'then' block
+		pp, kwElseIf := p.accept_Keyword('e', 'l', 's', 'e', 'i', 'f')
+		if kwElseIf == nil {
+			break
+		}
+		// expect exp
+		if p, block, err = pp.accept_block(); err != nil {
+			return pSaved, nil, err
+		} else if block == nil {
+			return pSaved, nil, fmt.Errorf("expected block")
+		}
+		// expect 'then'
+		if p, kwThen = p.accept_Keyword('t', 'h', 'e', 'n'); kwThen == nil {
+			return pSaved, nil, fmt.Errorf("expected 'then'")
+		}
+		// expect block
+		if p, block, err = pp.accept_block(); err != nil {
+			return pSaved, nil, err
+		} else if block == nil {
+			return pSaved, nil, fmt.Errorf("expected block")
+		}
+		rule.expblock = append(rule.expblock, &EXPBLOCK{exp: exp, block: block})
+	}
+	// accept ['else' block]
+	if pp, kwElse := p.accept_Keyword('e', 'l', 's', 'e'); kwElse != nil {
+		// expect block
+		if p, rule.elseBlock, err = pp.accept_block(); err != nil {
+			return pSaved, nil, err
+		} else if rule.elseBlock == nil {
+			return pSaved, nil, fmt.Errorf("expected block")
+		}
+	}
+	// expect 'end'
+	var kwEnd *KEYWORD
+	if p, kwEnd = p.accept_Keyword('e', 'n', 'd'); kwEnd == nil {
+		return pSaved, nil, fmt.Errorf("expected 'end'")
+	}
+
+	return p, rule, nil
+}
+
+// stat.rule11 ::= 'for' Name '=' exp ',' exp [',' exp] 'do' block 'end'
+func (p parser) accept_stat_rule11() (parser, *STAT_RULE11, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	panic("!")
+}
+
+// stat.rule12 ::= 'for' namelist 'in' explist 'do' block 'end'
+func (p parser) accept_stat_rule12() (parser, *STAT_RULE12, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	panic("!")
+}
+
+// stat.rule13 ::= 'function' funcname funcbody
+func (p parser) accept_stat_rule13() (parser, *STAT_RULE13, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	panic("!")
+}
+
+// stat.rule14 ::= 'local' 'function' Name funcbody
+func (p parser) accept_stat_rule14() (parser, *STAT_RULE14, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	panic("!")
+}
+
+// stat.rule15 ::= 'local' attnamelist ['=' explist]
+func (p parser) accept_stat_rule15() (parser, *STAT_RULE15, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	panic("!")
+}
+
+// attnamelist ::= Name attrib {',' Name attrib}
+func (p parser) accept_attnamelist() (parser, *ATTNAMELIST, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, attnamelist := p, &ATTNAMELIST{}
+	var err error
+
+	// accept Name
+	var name *NAME
+	if p, name, err = p.accept_Name(); err != nil {
+		return pSaved, nil, err
+	} else if name == nil {
+		return pSaved, nil, nil
+	}
+	// accept attrib
+	var attrib *ATTRIB
+	if p, attrib, err = p.accept_attrib(); err != nil {
+		return pSaved, nil, err
+	} else if attrib == nil {
+		return pSaved, nil, nil
+	}
+	attnamelist.attnamelist = append(attnamelist.attnamelist, &NAMEATTRIB{name: name, attrib: attrib})
+	// accept {',' Name attrib}
+	for {
+		// accept ','
+		pp, comma := p.accept_Literal(',')
+		if comma == nil {
+			break
+		}
+		// expect Name
+		if p, name, err = pp.accept_Name(); err != nil {
+			return pSaved, nil, err
+		} else if name == nil {
+			return pSaved, nil, fmt.Errorf("expected name")
+		}
+		// expect attrib
+		if p, attrib, err = p.accept_attrib(); err != nil {
+			return pSaved, nil, err
+		} else if attrib == nil {
+			return pSaved, nil, fmt.Errorf("expected attrib")
+		}
+		attnamelist.attnamelist = append(attnamelist.attnamelist, &NAMEATTRIB{name: name, attrib: attrib})
+	}
+
+	return p, attnamelist, nil
+}
+
+// attrib ::= ['<' Name '>']
+func (p parser) accept_attrib() (parser, *ATTRIB, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
+	pSaved, attrib := p, &ATTRIB{}
+	var err error
+
+	// accept '<'
+	var oBroket []byte
+	if p, oBroket = p.accept_Literal('<'); oBroket == nil {
+		return pSaved, nil, nil
+	}
+	// expect Name
+	if p, attrib.name, err = p.accept_Name(); err != nil {
+		return pSaved, nil, err
+	} else if attrib.name == nil {
+		return pSaved, nil, fmt.Errorf("expected name")
+	}
+	// expect '>'
+	var cBroket []byte
+	if p, cBroket = p.accept_Literal(); cBroket == nil {
+		return pSaved, nil, fmt.Errorf("expected '<'")
+	}
+
+	return p, attrib, nil
 }
 
 // retstat ::= 'return' [explist] [';']
