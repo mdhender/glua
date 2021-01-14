@@ -26,13 +26,19 @@ package main
 
 import (
 	"bytes"
-	"unicode/utf8"
 )
 
 //	chunk ::= block
-//
+type CHUNK struct {
+	block *BLOCK
+}
+
 //	block ::= {stat} [retstat]
-//
+type BLOCK struct {
+	stat    []*STAT
+	retstat *RETSTAT
+}
+
 //	stat ::=  ‘;’ |
 //		 varlist ‘=’ explist |
 //		 functioncall |
@@ -48,53 +54,197 @@ import (
 //		 function funcname funcbody |
 //		 local function Name funcbody |
 //		 local attnamelist [‘=’ explist]
-//
+type STAT struct{}
+
 //	attnamelist ::=  Name attrib {‘,’ Name attrib}
-//
+type ATTNAMELIST struct{}
+
 //	attrib ::= [‘<’ Name ‘>’]
-//
+type ATTRIB struct{}
+
 //	retstat ::= return [explist] [‘;’]
-//
+type RETSTAT struct {
+	explist *EXPLIST
+}
+
 //	label ::= ‘::’ Name ‘::’
-//
+type LABEL struct {
+	name *NAME
+}
+
 //	funcname ::= Name {‘.’ Name} [‘:’ Name]
-//
+type FUNCNAME struct {
+	name      *NAME
+	dotName   []*NAME
+	colonName *NAME
+}
+
 //	varlist ::= var {‘,’ var}
-//
+type VARLIST struct {
+	variables []*VARIABLE
+}
+
 //	var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name
-//
+type VARIABLE struct{}
+
 //	namelist ::= Name {‘,’ Name}
-//
+type NAMELIST struct {
+	names []*NAME
+}
+
 //	explist ::= exp {‘,’ exp}
-//
+type EXPLIST struct {
+	exps []*EXP
+}
+
 //	exp ::=  nil | false | true | Numeral | LiteralString | ‘...’ | functiondef | prefixexp | tableconstructor | exp binop exp | unop exp
-//
+type EXP struct {
+	NIL, FALSE, TRUE, dotDotDot bool
+	literal                     []byte
+	literalString               *LITERALSTRING
+	numeral                     *NUMERAL
+	functiondef                 *FUNCTIONDEF
+	prefixexp                   *PREFIXEXP
+	tableconstructor            *TABLECONSTRUCTOR
+	expBinopExp                 *EXP_BINOP_EXP
+	unopExp                     *UNOP_EXP
+}
+
+type EXP_BINOP_EXP struct {
+	exp1  *EXP
+	binop *BINOP
+	exp2  *EXP
+}
+
+type UNOP_EXP struct {
+	unop *UNOP
+	exp  *EXP
+}
+
 // prefixexp ::= var | functioncall | ‘(’ exp ‘)’
-//
+type PREFIXEXP struct {
+	variable     *VARIABLE
+	functioncall *FUNCTIONCALL
+	exp          *EXP
+}
+
 //	functioncall ::=  prefixexp args | prefixexp ‘:’ Name args
-//
+type FUNCTIONCALL struct {
+	prefixexp *PREFIXEXP
+	name      *NAME
+	args      *ARGS
+}
+
 //	args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString
-//
+type ARGS struct {
+	rule1 *ARGS_RULE1
+	rule2 *ARGS_RULE2
+	rule3 *ARGS_RULE3
+}
+type ARGS_RULE1 struct {
+	explist *EXPLIST
+}
+type ARGS_RULE2 struct {
+	tableconstructor *TABLECONSTRUCTOR
+}
+type ARGS_RULE3 struct {
+	literalString *LITERALSTRING
+}
+
 //	functiondef ::= function funcbody
-//
+type FUNCTIONDEF struct {
+	funcbody *FUNCBODY
+}
+
 //	funcbody ::= ‘(’ [parlist] ‘)’ block end
-//
+type FUNCBODY struct {
+	parlist *PARLIST
+	block   *BLOCK
+}
+
 //	parlist ::= namelist [‘,’ ‘...’] | ‘...’
-//
+type PARLIST struct {
+	rule1 *PARLIST_RULE1
+	rule2 *PARLIST_RULE2
+}
+type PARLIST_RULE1 struct {
+	namelist  *NAMELIST
+	comma     []byte
+	dotDotDot []byte
+}
+type PARLIST_RULE2 struct {
+	dotDotDot []byte
+}
+
 //	tableconstructor ::= ‘{’ [fieldlist] ‘}’
-//
+type TABLECONSTRUCTOR struct {
+	fieldlist *FIELDLIST
+}
+
 //	fieldlist ::= field {fieldsep field} [fieldsep]
-//
+type FIELDLIST struct {
+	fields []*FIELD
+}
+
 //	field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
-//
+type FIELD struct {
+	rule1 *FIELD_RULE1
+	rule2 *FIELD_RULE2
+	rule3 *FIELD_RULE3
+}
+type FIELD_RULE1 struct {
+	exp1 *EXP
+	exp2 *EXP
+}
+type FIELD_RULE2 struct {
+	name *NAME
+	exp  *EXP
+}
+type FIELD_RULE3 struct {
+	exp *EXP
+}
+
 // fieldsep ::= ‘,’ | ‘;’
-//
+type FIELDSEP struct {
+	comma     bool
+	semicolon bool
+}
+
 // binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’ |
 //		 ‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘..’ |
 //		 ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ |
 //		 and | or
-//
+type BINOP struct {
+	plus                   bool
+	hyphen                 bool
+	asterisk               bool
+	slash                  bool
+	slashSlash             bool
+	caret                  bool
+	percent                bool
+	ampersand              bool
+	tilde                  bool
+	pipe                   bool
+	greaterThanGreaterThan bool
+	lessThanlessThan       bool
+	dotDot                 bool
+	lessThan               bool
+	lessThanEqual          bool
+	greaterThan            bool
+	greaterThanEqual       bool
+	equalEqual             bool
+	tildeEqual             bool
+	and                    bool
+	or                     bool
+}
+
 // unop ::= ‘-’ | not | ‘#’ | ‘~’
+type UNOP struct {
+	dash  bool
+	not   bool
+	hash  bool
+	tilde bool
+}
 
 type parser struct {
 	buf []byte
@@ -104,16 +254,7 @@ func eof(p parser) bool {
 	return len(p.buf) == 0
 }
 
-func skipch(p parser) parser {
-	if eof(p) {
-		return p
-	}
-	_, w := utf8.DecodeRune(p.buf)
-	p.buf = p.buf[w:]
-	return p
-}
-
-func skipchars(p parser, n int) parser {
+func (p parser) skipch(n int) parser {
 	if eof(p) {
 		return p
 	}
@@ -130,14 +271,31 @@ type KEYWORD struct {
 	val []byte
 }
 
+func bdup(src []byte) []byte {
+	dst := make([]byte, len(src), len(src))
+	copy(dst, src)
+	return dst
+}
+
 func (p parser) accept_Keyword(b ...byte) (parser, *KEYWORD) {
 	if eof(p) || !bytes.HasPrefix(p.buf, b) {
 		return p, nil
 	}
+	pSaved, keyword := p, &KEYWORD{val: bdup(p.buf[len(b):])}
+	// skip the keyword
 	p.buf = p.buf[len(b):]
-	return p, &KEYWORD{
-		val: b,
+	// the next byte must be a keyword terminator
+	if eof(p) {
+		return pSaved, nil
 	}
+	switch p.buf[0] {
+	case ' ', '\t', '\r', '\n',
+		'(', ')', '{', '}', '<', '>', '[', ']',
+		'.', ':', ';', '~', '=', '%', '/', '#', '*',
+		'\'', '"':
+		return p.skipch(1), keyword
+	}
+	return pSaved, nil
 }
 
 func (p parser) accept_Literal(b ...byte) (parser, []byte) {
@@ -148,17 +306,33 @@ func (p parser) accept_Literal(b ...byte) (parser, []byte) {
 	return p, b
 }
 
+type LITERALSTRING struct {
+	level int
+	val   []byte
+}
+
 // LiteralString is a terminal
-func (p parser) accept_LiteralString() (parser, []byte) {
+func (p parser) accept_LiteralString() (parser, *LITERALSTRING, error) {
 	panic("!implemented")
+}
+
+type NAME struct {
+	val []byte
 }
 
 // Name is a terminal
-func (p parser) accept_Name() (parser, *node) {
+func (p parser) accept_Name() (parser, *NAME, error) {
+	if eof(p) {
+		return p, nil, nil
+	}
 	panic("!implemented")
 }
 
+type NUMERAL struct {
+	val []byte
+}
+
 // Numeral is a terminal
-func (p parser) accept_Numeral() (parser, []byte) {
+func (p parser) accept_Numeral() (parser, *NUMERAL, error) {
 	panic("!implemented")
 }
